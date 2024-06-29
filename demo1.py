@@ -32,7 +32,7 @@ def df_process(df):
     return pd.DataFrame(_dict)
 
 # zc_df5 = df_process(pd.read_excel('./pygw/经营日报-2024_05.xls'))
-zc_df6 = df_process(pd.read_excel('./data/经营日报-2024_06.xls'))
+zc_df6 = df_process(pd.read_excel('./data/经营日报-2024_06_27.xls'))
 total5 = 2400
 total6 = zc_df6['数量'].sum()
 hcol1, hcol2,hcol3,hcol4,hcol5= st.columns(5)
@@ -59,6 +59,7 @@ with col1:
 with col2:
     # col2.write(zc_df6)
     st.dataframe(zc_df6, height=430)
+
 # @st.cache_data
 # def load_df_product():
 #     df_product = pd.read_excel('./data/车型汇总-2024_06.xls')
@@ -68,47 +69,58 @@ with col2:
 
 # df_product = load_df_product()
 col1, col2,col3, col4 = st.columns(4)
-_df = pd.read_excel('./data/车型汇总-2024_06.xls')
+# _df = pd.read_excel('./data/车型汇总-2024_06.xls')
+# _df['per'] = _df
+all_ddc_df = pd.read_excel('./data/all_ddc.xlsx')
+ddc_summary_df = pd.read_excel('./data/ddc_summary.xlsx')
+ddc_summary_df['per'] = ddc_summary_df['qty']/ddc_summary_df['qty'].sum()
+ddc_summary_df = ddc_summary_df.round({'per': 3})
 with col1:
     with st.container(border=True):
         st.markdown("##### 车系销量占比")
-        # st.write(alt.Chart(df_product).mark_bar().encode(
-        #     x=alt.X('销售数量',  sort=None),
-        #     y=alt.Y('商品名称'),
-        #     # text='销售数量:Q'
-        # ))
-        # st.write(alt.Chart(df_product).mark_arc().encode(
-        #     theta="销售数量",
-        #     color="商品名称:N",
-        #     text="销售数量:Q"
-        #     # text='销售数量:Q'
-        # ))
-        base = alt.Chart(_df).encode(
-            alt.Theta("销售数量:Q").stack(True),
-            alt.Radius("销售数量").scale(type="sqrt", zero=True, rangeMin=20),
-            color="商品名称:N",
+        base = alt.Chart(ddc_summary_df).encode(
+            alt.Theta("qty:Q").stack(True),
+            alt.Radius("qty").scale(type="sqrt", zero=True, rangeMin=20),
+            color="fullname:N",
         )
         c1 = base.mark_arc(innerRadius=20, stroke="#fff")
-        c2 = base.mark_text(radiusOffset=10).encode(text="销量权重(%):Q")
+        c2 = base.mark_text(radiusOffset=10).encode(text="per:Q")
         c1 + c2
 
 with col2:
     with st.container(border=True):
         st.markdown("##### 车单价与销量")
         chart7 = (
-            alt.Chart(_df).mark_point()
+            alt.Chart(ddc_summary_df).mark_point()
             .encode(
-                x='单价',
-                y='销售数量',
-                size='销售数量',
-                color="商品名称:N",
+                x='price',
+                y='qty',
+                size='qty',
+                color="fullname:N",
             )
         )
-
         st.altair_chart(chart7)
-
-
-
+with col3:
+    with st.container(border=True):
+        genre_ddc = st.radio(
+            "请选择要分析的车系",
+            ddc_summary_df['fullname'].tolist(),
+            )
+        parid = ddc_summary_df[ddc_summary_df['fullname']==genre_ddc]['typeid'].values[0]
+        genre_ddc_df = all_ddc_df[all_ddc_df['parid'] == parid]
+        genre_ddc_df.sort_values(ascending=False, inplace=True, by='qty')
+        genre_ddc_df.reset_index(drop=True, inplace=True)
+    # st.write(genre_ddc)
+with col4:
+    # scale = alt.Scale(domain=["line", "shade1", "shade2"], range=['red', 'lightblue', 'darkblue'])
+    with st.container(border=True):
+        genre_ddc_chart = alt.Chart(genre_ddc_df).mark_bar().encode(
+                alt.Y('fullname', sort=None).title(None),
+            alt.X('qty', sort='ascending').title('qty', titleColor='#57A44C'),
+            # color="fullname:N"
+            # color=alt.Color('fullname:N', title='')
+        )
+        st.altair_chart(genre_ddc_chart)
 def load_df_customer(df_customer,y):
     df_customer.sort_values(ascending=False, inplace=True, by=y)
     df_customer.reset_index(drop=True, inplace=True)
@@ -147,16 +159,15 @@ with st.container(border=True):
         ["销售数量", "价税合计", "毛利"],
         # captions = ["销售数量", "价税合计", "毛利"],
         horizontal =True)
-    print(genre)
+    # print(genre)
     if genre == "销售数量":
         k = '销售数量'
     elif genre == "价税合计":
         k = '价税合计'
     else:
         k = '毛利'
-    df_customer = pd.read_excel('./data/customer_summary-2024_05.xls')
+    df_customer = pd.read_excel('./data/customer_summary-2024_06.xls')
     _df,percent = load_df_customer(df_customer, k)
     st.markdown("###### 百分之:"+percent + "的客户的"+k +"占比超过：80%")
     customer_chart = make_customer_chart(_df,k)
     st.altair_chart(customer_chart)
-
