@@ -30,6 +30,12 @@ def df_process(df):
     _dict = {'单据日期':g.index,'数量':g.values}
     return pd.DataFrame(_dict)
 
+# @st.cache_data
+def fetch_ddc_summary(s, _d1, _d2):
+    res = pygw.getdata.get_ddc_summary(s, _d1, _d2)
+    ddc_summary_before_df = pd.DataFrame(res)
+    return ddc_summary_before_df
+
 s = pygw.getdata.getCarparSession()
 today = datetime.datetime.now()
 
@@ -57,15 +63,22 @@ d2 = d[1].strftime("%Y-%m-%d")
 d_before1 = d_before[0].strftime("%Y-%m-%d")
 d_before2 = d_before[1].strftime("%Y-%m-%d")
 if st.button("查询"):
+    # res = pygw.getdata.get_ddc_summary(s, d1, d2)
+    # res1 = pygw.getdata.get_ddc_summary(s, d_before1, d_before2)
+    ddc_summary_df = fetch_ddc_summary(s, d1, d2)
+    ddc_summary_before_df = fetch_ddc_summary(s, d_before1, d_before2)
+    total_before = ddc_summary_before_df['sum_qty'].sum()
+    ddc_summary_df['per'] = ddc_summary_df['sum_qty'] / ddc_summary_df['sum_qty'].sum()
+    ddc_summary_df = ddc_summary_df.round({'per': 3})
+    total_now = ddc_summary_df['sum_qty'].sum()
+    days = pygw.toolbox.get_day_num(d1, d2)
+
+    get_all_ddc_detail_df = pygw.getdata.get_all_ddc_detail(s, d1, d2)
+    get_all_ddc_detail_df = pd.DataFrame(get_all_ddc_detail_df)
+
+
     hcol1, hcol2, hcol3, hcol4, hcol5 = st.columns(5)
     with hcol1:
-        res = pygw.getdata.get_ddc_summary(s, d1, d2)
-        res1 = pygw.getdata.get_ddc_summary(s, d_before1, d_before2)
-        ddc_summary_df = pd.DataFrame(res)
-        ddc_summary_before_df = pd.DataFrame(res1)
-        total_now = ddc_summary_df['sum_qty'].sum()
-        total_before = ddc_summary_before_df['sum_qty'].sum()
-        days = pygw.toolbox.get_day_num(d1, d2)
         st.metric(label="当月销量", value=str(int(total_now))+'辆', delta=int(total_now-total_before))
     with hcol2:
         st.metric(label="日均销量", value=str(int(total_now/days)+1) + '辆')
@@ -78,8 +91,12 @@ if st.button("查询"):
     _pd_get_day_report_df = pd.DataFrame(_dict)
     _pd_get_day_report_df['数量'] = _pd_get_day_report_df['数量'].abs()
     day_report_chart = (
-        alt.Chart(_pd_get_day_report_df, width=900)
-        .mark_area(opacity=0.3)
+        alt.Chart(_pd_get_day_report_df)
+        .mark_area(
+            clip=True,
+            interpolate='monotone',
+            opacity=0.6
+        )
         .encode(
             x="单据日期:T",
             y=alt.Y("数量:Q", stack=None),
@@ -88,71 +105,65 @@ if st.button("查询"):
     )
     with st.container(border=True):
         st.markdown("##### 月度销量走势")
-        st.altair_chart(day_report_chart)
+        st.altair_chart(day_report_chart,use_container_width=True)
 
-# baseunitname
+    col1, col2,col3, col4 = st.columns(4)
+    with col1:
+        with st.container(border=True):
+            # st.markdown("##### 车系销量占比")
+            # base = alt.Chart(ddc_summary_df).encode(
+            #     alt.Theta("sum_qty:Q").stack(True),
+            #     alt.Radius("sum_qty").scale(type="sqrt", zero=True, rangeMin=20),
+            #     color="fullname:N",
+            # )
+            # c1 = base.mark_arc(innerRadius=20, stroke="#fff")
+            # c2 = base.mark_text(radiusOffset=10).encode(text="per:Q")
+            # c1 + c2
 
-# col1, col2 = st.columns(2)
-# with col1:
-#     with st.container(border=True):
-#         st.markdown("##### 月度销量走势")
-#         st.altair_chart(chart6)
-# with col2:
-#     # col2.write(zc_df6)
-#     st.dataframe(zc_df6, height=430)
-#
-# col1, col2,col3, col4 = st.columns(4)
-#
-# all_ddc_df = pd.read_excel('./data/all_ddc.xlsx')
-# ddc_summary_df = pd.read_excel('./data/ddc_summary.xlsx')
-# ddc_summary_df['per'] = ddc_summary_df['qty']/ddc_summary_df['qty'].sum()
-# ddc_summary_df = ddc_summary_df.round({'per': 3})
-# with col1:
-#     with st.container(border=True):
-#         st.markdown("##### 车系销量占比")
-#         base = alt.Chart(ddc_summary_df).encode(
-#             alt.Theta("qty:Q").stack(True),
-#             alt.Radius("qty").scale(type="sqrt", zero=True, rangeMin=20),
-#             color="fullname:N",
-#         )
-#         c1 = base.mark_arc(innerRadius=20, stroke="#fff")
-#         c2 = base.mark_text(radiusOffset=10).encode(text="per:Q")
-#         c1 + c2
-#
-# with col2:
-#     with st.container(border=True):
-#         st.markdown("##### 车单价与销量")
-#         chart7 = (
-#             alt.Chart(ddc_summary_df).mark_point()
-#             .encode(
-#                 x='price',
-#                 y='qty',
-#                 size='qty',
-#                 color="fullname:N",
-#             )
-#         )
-#         st.altair_chart(chart7)
-# with col3:
-#     with st.container(border=True):
-#         genre_ddc = st.radio(
-#             "请选择要分析的车系",
-#             ddc_summary_df['fullname'].tolist(),
-#             )
-#         parid = ddc_summary_df[ddc_summary_df['fullname']==genre_ddc]['typeid'].values[0]
-#         genre_ddc_df = all_ddc_df[all_ddc_df['parid'] == parid]
-#         genre_ddc_df.sort_values(ascending=False, inplace=True, by='qty')
-#         genre_ddc_df.reset_index(drop=True, inplace=True)
-#     # st.write(genre_ddc)
-# with col4:
-#     # scale = alt.Scale(domain=["line", "shade1", "shade2"], range=['red', 'lightblue', 'darkblue'])
-#     with st.container(border=True):
-#         genre_ddc_chart = alt.Chart(genre_ddc_df).mark_bar().encode(
-#                 alt.Y('fullname', sort=None).title(None),
-#             alt.X('qty', sort='ascending').title('qty', titleColor='#57A44C'),
-#             # color="fullname:N"
-#             # color=alt.Color('fullname:N', title='')
-#         )
-#         st.altair_chart(genre_ddc_chart)
+            pts = alt.selection_point(encodings=['fullname'])
+            bar = alt.Chart(source, width=550, height=200).mark_bar().encode(
+                x='Major_Genre:N',
+                y='count()',
+                color=alt.condition(pts, alt.ColorValue("steelblue"), alt.ColorValue("grey"))
+            ).add_params(pts)
+    # with col2:
+    #     with st.container(border=True):
+    #         st.markdown("##### 车单价与销量")
+    #         chart7 = (
+    #             alt.Chart(ddc_summary_df).mark_point()
+    #             .encode(
+    #                 x='price',
+    #                 y='sum_qty',
+    #                 size='sum_qty',
+    #                 color="fullname:N",
+    #             )
+    #         )
+    #         st.altair_chart(chart7)
+    # with col3:
+    #     with st.container(border=True):
+    #         genre_ddc = st.radio(
+    #             "请选择要分析的车系",
+    #             ddc_summary_df['fullname'].tolist(),
+    #             )
+
+        # genre_ddc_df = all_ddc_df[all_ddc_df['parid'] == parid]
+        # genre_ddc_df.sort_values(ascending=False, inplace=True, by='qty')
+        # genre_ddc_df.reset_index(drop=True, inplace=True)
+        #     st.write(genre_ddc)
+    # with col4:
+    #     # scale = alt.Scale(domain=["line", "shade1", "shade2"], range=['red', 'lightblue', 'darkblue'])
+    #     with st.container(border=True):
+    #
+    #         parid = ddc_summary_df[ddc_summary_df['fullname']==genre_ddc]['typeid'].values[0]
+    #         one_ddc_df = pygw.getdata.get_one_ddc_detail(s,d1,d2,parid)
+    #         one_ddc_df = pd.DataFrame(one_ddc_df)
+    #         genre_ddc_chart = alt.Chart(one_ddc_df).mark_bar().encode(
+    #                 alt.Y('fullname', sort=None).title(None),
+    #             alt.X('qty', sort='ascending').title('qty', titleColor='#57A44C'),
+    #             # color="fullname:N"
+    #             # color=alt.Color('fullname:N', title='')
+    #         )
+    #         st.altair_chart(genre_ddc_chart)
 # def load_df_customer(df_customer,y):
 #     df_customer.sort_values(ascending=False, inplace=True, by=y)
 #     df_customer.reset_index(drop=True, inplace=True)
