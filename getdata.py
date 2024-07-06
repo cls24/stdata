@@ -49,6 +49,20 @@ def dashrepl(matchobj):
     else:
         return ''
 
+def get_all_ddc_detail(session, startdate, enddate):
+    data = '{"formId":"2","clientInfo":{"saleStatLineSource":{"ConfigGUID":"670bc308_grid_2000","PageSize":0,"ShowAll":false},"__ConfigGUID":"670bc308_0","__Params":{"billType":"11","billTypeName":"销售出库单","inputType":"P","stypeid":"00001","sfullname":"默认分支机构","pfullname":"九号车-现用","ptypeid":"0001000009","kfullname":"西善桥-总部","showstockstop":false,"bTypeLx":null,"flag":"0","startDate":"2024-07-01","endDate":"2024-07-06","ptypecategoryid":"","ptypeproperty":"0","btypeid":"","dealbtypeid":"","etypeid":"","etypeid1":"","ktypeid":"00002","atypeid":"","dtypeid":"","explain":"","comment":"","chkDiscountQuery":"0","chkPe":0,"chkDx":"0","chkPf":"0","parid":"00000","chkXs":"0","chkPt":"0","chkRed":0,"delView":0,"isshowservice":true,"intPageNo":"1","intPageSize":50,"chvOperatorID":"000010000700012","chrFlag":"1","unitconvert":3},"__Grids":["670bc308_grid_2000"],"__GridInfos":{"670bc308_grid_2000":{"PermitGroupName":["ptype","baseInfo"],"NumberTypeNames":{"numberFields":{"sum_qty":"qty","salecount":"qty","salebackcount":"qty","accountqty":"qty","baseqty":"qty","nqty":"qty","gift_qty":"qty","giftprice":"price","giftcosttotal":"total","price":"price","sum_discounttotal":"total","sum_total":"total","sum_taxtotal":"total","taxge":"total","costprice":"price","sum_costtotal":"total","pricetotal":"total","advantagetotal":"total","sharefee":"total","sum_maoli":"total","preferencemoney":"total","sum_maolilu":"percentage","zeropriceqty":"qty","qty_qz":"percentage","total_qz":"percentage","maoli_qz":"percentage","pjlirun":"total"},"numberColumnTypeNames":["qty","price","total","percentage"]},"BaseInfoColumns":[{"ColumnName":"$ptype$typeid","TypeName":"ptype","DisplayFields":"usercode,fullname","DataField":"typeid","RootLayerIdLength":0,"DisplayCaptions":null,"DisableFields":null,"IsVisible":false,"DesignVisible":false,"DisplayIndex":0,"Index":0,"IsReadOnly":false,"IsEnabled":false,"AllowExpand":null,"AllowHide":false,"AllowAddColumn":false,"OnlyExpandVisible":null,"SaveInitVisible":false,"SaveInitConfig":false,"IsDiyCol":false}],"defaultOrderField":null,"isDistributing":false,"distributingTypeName":"","ExpressionColumnInfo":{},"State":null}},"__FormGuid":"df8b553d-a18f-479b-bbde-35908af3d106","__Tag":null,"__Caches":{"__CorrelativeActionConfig":0,"__SkinConfig":0,"__ReportLimitData":0,"__CustomReportConfig":0,"__BusinessData":0,"__SelfDataType":0,"limit":2,"userconfig":83,"pricetrackconfig":0,"sysdata":274,"sysdata1":112,"userinfo":2,"digitconfig":55}}}'
+    data = json.loads(data)
+    # data['clientInfo']['__Params']['startdate'] = startdate
+    # data['clientInfo']['__Params']['enddate'] = enddate
+    url1 = '/jxcTOP/CarpaServer/CarpaServer.Stat.StatTypeLineBaseService.ajax/_GetServerContextData '
+    session.post(carpaHost + url1, json=data)
+    url = '/jxcTOP/Carpa.Web/Carpa.Web.Script.DataService.ajax/GetPagerDataEx'
+    data = '{"pagerId":"$2$saleStatLineSource","queryParams":{"billType":"11","billTypeName":"销售出库单","inputType":"P","stypeid":"00001","sfullname":"默认分支机构","pfullname":"九号科技电动车","ptypeid":"00010","kfullname":"九号整车总仓","showstockstop":false,"bTypeLx":null,"flag":"0","startDate":"2024-07-01","endDate":"2024-07-06","ptypecategoryid":"","ptypeproperty":"0","btypeid":"","dealbtypeid":"","etypeid":"","etypeid1":"","ktypeid":"0000200007","atypeid":"","dtypeid":"","explain":"","comment":"","chkDiscountQuery":"0","chkPe":0,"chkDx":"0","chkPf":"0","parid":"00000","chkXs":"0","chkPt":"0","chkRed":0,"delView":0,"isshowservice":true,"intPageNo":"1","intPageSize":9999,"chvOperatorID":"000010000700012","chrFlag":"1","unitconvert":3,"sortfield":"","sorttype":"","userCode":"","fullName":"","priceMode":"0"},"orders":null,"filter":null,"first":0,"count":9999,"isFirst":false}'
+    data = json.loads(data)
+    data['queryParams']['startdate'] = startdate
+    data['queryParams']['enddate'] = startdate
+    r = session.post(carpaHost + url, json=data).json()
+    return rows2dict(r['itemList']['fields'], r['itemList']['rows'])
 
 def get_one_ddc_detail(session, startdate, enddate, parid):
     # startdate = '2024-03-01'
@@ -168,9 +182,9 @@ if __name__ == '__main__':
     path = '../data/'
     startdate = '2024-07-01'
     enddate = '2024-07-04'
-    # r = get_one_ddc_detail(s, startdate, enddate, '000100000900002')
+    r = get_all_ddc_detail(s, startdate, enddate)
     # r = get_ddc_summary(s,startdate,enddate)
-    r = get_day_report(s,startdate,enddate)
+    # r = get_day_report(s,startdate,enddate)
     # print(r)
     # df = pd.DataFrame(r)
     # df.to_excel(path+'ddc_summary.xlsx')
