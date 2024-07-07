@@ -180,10 +180,18 @@ def get_day_report(session, startdate, enddate):
 if __name__ == '__main__':
     s = getCarparSession()
     path = '../data/'
-    startdate = '2024-07-01'
-    enddate = '2024-07-04'
-    r = get_all_ddc_detail(s, startdate, enddate)
-    # r = get_ddc_summary(s,startdate,enddate)
+    startdate = '2024-06-01'
+    enddate = '2024-07-01'
+    # r = get_all_ddc_detail(s, startdate, enddate)
+    r = get_ddc_summary(s,startdate,enddate)
+    get_ddc_summary_df = pd.DataFrame(r)
+    get_ddc_summary_df.sort_values(ascending=False, inplace=True, by='sum_qty')
+    ddc_summary_df_top3 = get_ddc_summary_df.head(3)
+    top3_list = []
+    for index, row in ddc_summary_df_top3[:3].iterrows():
+        typeid = row["typeid"]
+        top3_list.append(get_one_ddc_detail(s,startdate,enddate,typeid))
+    print('top3_list',top3_list)
     # r = get_day_report(s,startdate,enddate)
     # print(r)
     # df = pd.DataFrame(r)
@@ -195,4 +203,4 @@ if __name__ == '__main__':
     p = '000010005100038'
     # get_customer_summary(s,startdate,enddate)
     # r = get_customer_summary(s,startdate,enddate)
-    print(r)
+    # print(r)
