@@ -49,7 +49,7 @@ def dashrepl(matchobj):
     else:
         return ''
 
-def get_all_ddc_detail(session, startdate, enddate):
+def get_all_ddc_LineSource_detail(session, startdate, enddate):
     data = '{"formId":"2","clientInfo":{"saleStatLineSource":{"ConfigGUID":"670bc308_grid_2000","PageSize":0,"ShowAll":false},"__ConfigGUID":"670bc308_0","__Params":{"billType":"11","billTypeName":"销售出库单","inputType":"P","stypeid":"00001","sfullname":"默认分支机构","pfullname":"九号车-现用","ptypeid":"0001000009","kfullname":"西善桥-总部","showstockstop":false,"bTypeLx":null,"flag":"0","startDate":"2024-07-01","endDate":"2024-07-06","ptypecategoryid":"","ptypeproperty":"0","btypeid":"","dealbtypeid":"","etypeid":"","etypeid1":"","ktypeid":"00002","atypeid":"","dtypeid":"","explain":"","comment":"","chkDiscountQuery":"0","chkPe":0,"chkDx":"0","chkPf":"0","parid":"00000","chkXs":"0","chkPt":"0","chkRed":0,"delView":0,"isshowservice":true,"intPageNo":"1","intPageSize":50,"chvOperatorID":"000010000700012","chrFlag":"1","unitconvert":3},"__Grids":["670bc308_grid_2000"],"__GridInfos":{"670bc308_grid_2000":{"PermitGroupName":["ptype","baseInfo"],"NumberTypeNames":{"numberFields":{"sum_qty":"qty","salecount":"qty","salebackcount":"qty","accountqty":"qty","baseqty":"qty","nqty":"qty","gift_qty":"qty","giftprice":"price","giftcosttotal":"total","price":"price","sum_discounttotal":"total","sum_total":"total","sum_taxtotal":"total","taxge":"total","costprice":"price","sum_costtotal":"total","pricetotal":"total","advantagetotal":"total","sharefee":"total","sum_maoli":"total","preferencemoney":"total","sum_maolilu":"percentage","zeropriceqty":"qty","qty_qz":"percentage","total_qz":"percentage","maoli_qz":"percentage","pjlirun":"total"},"numberColumnTypeNames":["qty","price","total","percentage"]},"BaseInfoColumns":[{"ColumnName":"$ptype$typeid","TypeName":"ptype","DisplayFields":"usercode,fullname","DataField":"typeid","RootLayerIdLength":0,"DisplayCaptions":null,"DisableFields":null,"IsVisible":false,"DesignVisible":false,"DisplayIndex":0,"Index":0,"IsReadOnly":false,"IsEnabled":false,"AllowExpand":null,"AllowHide":false,"AllowAddColumn":false,"OnlyExpandVisible":null,"SaveInitVisible":false,"SaveInitConfig":false,"IsDiyCol":false}],"defaultOrderField":null,"isDistributing":false,"distributingTypeName":"","ExpressionColumnInfo":{},"State":null}},"__FormGuid":"df8b553d-a18f-479b-bbde-35908af3d106","__Tag":null,"__Caches":{"__CorrelativeActionConfig":0,"__SkinConfig":0,"__ReportLimitData":0,"__CustomReportConfig":0,"__BusinessData":0,"__SelfDataType":0,"limit":2,"userconfig":83,"pricetrackconfig":0,"sysdata":274,"sysdata1":112,"userinfo":2,"digitconfig":55}}}'
     data = json.loads(data)
     # data['clientInfo']['__Params']['startdate'] = startdate
@@ -59,8 +59,8 @@ def get_all_ddc_detail(session, startdate, enddate):
     url = '/jxcTOP/Carpa.Web/Carpa.Web.Script.DataService.ajax/GetPagerDataEx'
     data = '{"pagerId":"$2$saleStatLineSource","queryParams":{"billType":"11","billTypeName":"销售出库单","inputType":"P","stypeid":"00001","sfullname":"默认分支机构","pfullname":"九号科技电动车","ptypeid":"00010","kfullname":"九号整车总仓","showstockstop":false,"bTypeLx":null,"flag":"0","startDate":"2024-07-01","endDate":"2024-07-06","ptypecategoryid":"","ptypeproperty":"0","btypeid":"","dealbtypeid":"","etypeid":"","etypeid1":"","ktypeid":"0000200007","atypeid":"","dtypeid":"","explain":"","comment":"","chkDiscountQuery":"0","chkPe":0,"chkDx":"0","chkPf":"0","parid":"00000","chkXs":"0","chkPt":"0","chkRed":0,"delView":0,"isshowservice":true,"intPageNo":"1","intPageSize":9999,"chvOperatorID":"000010000700012","chrFlag":"1","unitconvert":3,"sortfield":"","sorttype":"","userCode":"","fullName":"","priceMode":"0"},"orders":null,"filter":null,"first":0,"count":9999,"isFirst":false}'
     data = json.loads(data)
-    data['queryParams']['startdate'] = startdate
-    data['queryParams']['enddate'] = startdate
+    data['queryParams']['startDate'] = startdate
+    data['queryParams']['endDate'] = enddate
     r = session.post(carpaHost + url, json=data).json()
     return rows2dict(r['itemList']['fields'], r['itemList']['rows'])
 
@@ -115,8 +115,8 @@ def get_ddc_summary(session, startdate, enddate):
     # data1 = '{"pagerId":"$2$SaleQueryDataSource","queryParams":{"parid":"0001000009","ktypeid":"0000200007","stypeid":"00001","saleflag":3,"buyType":0,"startdate":"2024-07-01","enddate":"2024-07-01","iscountsendptype":"1","sortfield":"","sorttype":"","QueryType":"sale","DAY":"","BEGINDate":"2024-07-01","OperatorID":"000010000700012"},"orders":null,"filter":null,"first":0,"count":9999,"isFirst":false}'
     data1 = '{"pagerId":"$2$saleStatSource","queryParams":{"billType":"11","billTypeName":"销售出库单","inputType":"P","stypeid":"00001","sfullname":"默认分支机构","pfullname":"九号车-现用","ptypeid":"0001000009","kfullname":"九号整车总仓","showstockstop":false,"bTypeLx":null,"flag":"0","startDate":"2024-07-01","endDate":"2024-07-04","ptypecategoryid":"","ptypeproperty":"0","btypeid":"","dealbtypeid":"","etypeid":"","etypeid1":"","ktypeid":"0000200007","atypeid":"","dtypeid":"","explain":"","comment":"","chkDiscountQuery":"0","chkPe":0,"chkDx":"0","chkPf":"0","parid":"0001000009","chkXs":"0","chkPt":"0","chkRed":0,"delView":0,"isshowservice":true,"intPageNo":"1","intPageSize":50,"chvOperatorID":"000010000700012","chrFlag":"1","unitconvert":3},"orders":null,"filter":null,"first":0,"count":30,"isFirst":true}'
     data1 = json.loads(data1)
-    data1['queryParams']['startdate'] = startdate
-    data1['queryParams']['enddate'] = enddate
+    data1['queryParams']['startDate'] = startdate
+    data1['queryParams']['endDate'] = enddate
     # print(data1)
     r = session.post(carpaHost + url1, json=data1).json()
     # print(r)
@@ -124,18 +124,17 @@ def get_ddc_summary(session, startdate, enddate):
 
 
 def get_customer_summary(session, startdate, enddate):
-    url1 = '/jxcTOP/CarpaServer/CarpaServer.Stat.StatTypeListBaseService.ajax/_GetServerContextData'
-    data1 = '{"formId":"2","clientInfo":{"saleStatSource":{"ConfigGUID":"3e528339_grid_1000","PageSize":0,"ShowAll":false},"__ConfigGUID":"3e528339_0","__Params":{"startDate":"2024-04-01","endDate":"2024-06-30","ptypecategoryid":"","ptypeid":"","btypeid":"","dealbtypeid":"","etypeid":"","ktypeid":"0000200007","dtypeid":"","billType":"11,45,305,141,160,215","billTypeName":"销售出库单,销售退货单,零售单,委托代销结算单,销售换货单,零售退货单","explain":"","comment":"","chkDiscountQuery":"0","chkPe":"0","chkDx":"0","chkPf":"0","pfullname":"","kfullname":"九号整车总仓","atypeid":"","etypeid1":"","ptypeproperty":"0","flag":"0","bTypeLx":null,"sfullname":"默认分支机构","stypeid":"00001","inputType":"B","parid":"00000","chkXs":"0","chkPt":"0","chkRed":0,"delView":0,"isshowservice":false},"__Grids":["3e528339_grid_1000"],"__GridInfos":{"3e528339_grid_1000":{"PermitGroupName":["jtype","baseInfo"],"NumberTypeNames":{"numberFields":{"sum_qty":"qty","salecount":"qty","salebackcount":"qty","nqty":"qty","gift_qty":"qty","giftprice":"price","giftcosttotal":"total","price":"price","sum_discounttotal":"total","sum_total":"total","sum_taxtotal":"total","taxge":"total","costprice":"price","sum_costtotal":"total","pricetotal":"total","advantagetotal":"total","sharefee":"total","sum_maoli":"total","preferencemoney":"total","sum_maolilu":"percentage","zeropriceqty":"qty","qty_qz":"percentage","total_qz":"percentage","maoli_qz":"percentage","pjlirun":"total"},"numberColumnTypeNames":["qty","price","total","percentage"]},"BaseInfoColumns":[{"ColumnName":"$jtype$typeid","TypeName":"jtype","DisplayFields":"usercode,fullname","DataField":"typeid","RootLayerIdLength":0,"DisplayCaptions":null,"DisableFields":null,"IsVisible":false,"DesignVisible":false,"DisplayIndex":0,"Index":0,"IsReadOnly":false,"IsEnabled":false,"AllowExpand":null,"AllowHide":false,"AllowAddColumn":false,"OnlyExpandVisible":null,"SaveInitVisible":false,"SaveInitConfig":false,"IsDiyCol":false}],"defaultOrderField":null,"isDistributing":false,"distributingTypeName":"","ExpressionColumnInfo":{},"State":null}},"__FormGuid":"c9085f86-9a92-454f-a6ab-ec463fde6509","__Tag":null,"__Caches":{"__CorrelativeActionConfig":0,"__SkinConfig":0,"__ReportLimitData":0,"__CustomReportConfig":0,"__BusinessData":0,"__SelfDataType":0,"limit":0,"userconfig":58,"pricetrackconfig":0,"sysdata":218,"sysdata1":102,"userinfo":0,"digitconfig":51}}}'
-    data1 = json.loads(data1)
+    url = '/jxcTOP/CarpaServer/CarpaServer.Stat.StatTypeListBaseService.ajax/_GetServerContextData'
+    data = '{"formId":"2","clientInfo":{"saleStatSource":{"ConfigGUID":"3e528339_grid_1000","PageSize":0,"ShowAll":false},"__ConfigGUID":"3e528339_0","__Params":{"startDate":"2024-04-01","endDate":"2024-06-30","ptypecategoryid":"","ptypeid":"","btypeid":"","dealbtypeid":"","etypeid":"","ktypeid":"0000200007","dtypeid":"","billType":"11,45,305,141,160,215","billTypeName":"销售出库单,销售退货单,零售单,委托代销结算单,销售换货单,零售退货单","explain":"","comment":"","chkDiscountQuery":"0","chkPe":"0","chkDx":"0","chkPf":"0","pfullname":"","kfullname":"九号整车总仓","atypeid":"","etypeid1":"","ptypeproperty":"0","flag":"0","bTypeLx":null,"sfullname":"默认分支机构","stypeid":"00001","inputType":"B","parid":"00000","chkXs":"0","chkPt":"0","chkRed":0,"delView":0,"isshowservice":false},"__Grids":["3e528339_grid_1000"],"__GridInfos":{"3e528339_grid_1000":{"PermitGroupName":["jtype","baseInfo"],"NumberTypeNames":{"numberFields":{"sum_qty":"qty","salecount":"qty","salebackcount":"qty","nqty":"qty","gift_qty":"qty","giftprice":"price","giftcosttotal":"total","price":"price","sum_discounttotal":"total","sum_total":"total","sum_taxtotal":"total","taxge":"total","costprice":"price","sum_costtotal":"total","pricetotal":"total","advantagetotal":"total","sharefee":"total","sum_maoli":"total","preferencemoney":"total","sum_maolilu":"percentage","zeropriceqty":"qty","qty_qz":"percentage","total_qz":"percentage","maoli_qz":"percentage","pjlirun":"total"},"numberColumnTypeNames":["qty","price","total","percentage"]},"BaseInfoColumns":[{"ColumnName":"$jtype$typeid","TypeName":"jtype","DisplayFields":"usercode,fullname","DataField":"typeid","RootLayerIdLength":0,"DisplayCaptions":null,"DisableFields":null,"IsVisible":false,"DesignVisible":false,"DisplayIndex":0,"Index":0,"IsReadOnly":false,"IsEnabled":false,"AllowExpand":null,"AllowHide":false,"AllowAddColumn":false,"OnlyExpandVisible":null,"SaveInitVisible":false,"SaveInitConfig":false,"IsDiyCol":false}],"defaultOrderField":null,"isDistributing":false,"distributingTypeName":"","ExpressionColumnInfo":{},"State":null}},"__FormGuid":"c9085f86-9a92-454f-a6ab-ec463fde6509","__Tag":null,"__Caches":{"__CorrelativeActionConfig":0,"__SkinConfig":0,"__ReportLimitData":0,"__CustomReportConfig":0,"__BusinessData":0,"__SelfDataType":0,"limit":0,"userconfig":58,"pricetrackconfig":0,"sysdata":218,"sysdata1":102,"userinfo":0,"digitconfig":51}}}'
+    data = json.loads(data)
     # data1['queryParams']['startdate'] = startdate
     # data1['queryParams']['enddate'] = enddate
-    r = session.post(carpaHost + url1, json=data1)
+    r = session.post(carpaHost + url, json=data)
     url1 = '/jxcTOP/Carpa.Web/Carpa.Web.Script.DataService.ajax/GetPagerDataEx '
-    # data1 = '{"pagerId":"$2$saleStatSource","queryParams":{"startDate":"2024-04-01","endDate":"2024-06-30","ptypecategoryid":"","ptypeid":"","btypeid":"","dealbtypeid":"","etypeid":"","ktypeid":"0000200007","dtypeid":"","billType":"11","billTypeName":"销售出库单","explain":"","comment":"","chkDiscountQuery":false,"chkPe":0,"chkDx":false,"chkPf":0,"pfullname":"","kfullname":"九号整车总仓","atypeid":"","etypeid1":"","ptypeproperty":"0","flag":"0","bTypeLx":null,"sfullname":"默认分支机构","stypeid":"00001","inputType":"B","parid":"0000100051","chkXs":0,"chkPt":"0","chkRed":0,"delView":0,"isshowservice":false,"intPageNo":"1","intPageSize":50,"chvOperatorID":"000010000700012","chrFlag":"1","unitconvert":3,"dealbfullname":"","bfullname":"","efullname":"","dfullname":"","areafullname":""},"orders":null,"filter":null,"first":0,"count":999,"isFirst":false}'
-    data1 = '{"pagerId":"$2$saleStatSource","queryParams":{"startDate":"2024-07-01","endDate":"2024-07-01","ptypecategoryid":"00002","ptypeid":"000100000900001,000100000900002,000100000900003,000100000900004,000100000900005,000100000900029,000100000900006,000100000900020,000100000900021,000100000900022,000100000900023,000100000900024,000100000900025,000100000900026,000100000900027,000100000900028","btypeid":"0000100051","dealbtypeid":"","etypeid":"","ktypeid":"0000200007","dtypeid":"","billType":"11","billTypeName":"销售出库单","explain":"","comment":"","chkDiscountQuery":false,"chkPe":0,"chkDx":false,"chkPf":0,"pfullname":"九号车B系列;九号车C系列;九号车E系列;九号车其他;九号车A系列;九号车A2Z系列;九号车N系列;九号车C2021系列;九号车A+系列;九号车Bmax系列;九号车F系列;九号车Mmax系列;九号车M系列;九号车Q系列;九号车V系列;九号车D系列","bfullname":"九号-经销商","kfullname":"九号整车总仓","atypeid":"","etypeid1":"","ptypeproperty":"0","flag":"0","bTypeLx":null,"sfullname":"默认分支机构","stypeid":"00001","inputType":"B","ptypecategoryfullname":"电动车","showstockstop":false,"parid":"0000100051","chkXs":0,"chkPt":"0","chkRed":0,"delView":0,"isshowservice":false,"intPageNo":"1","intPageSize":50,"chvOperatorID":"000010000700012","chrFlag":"1","unitconvert":3,"dealbfullname":"","efullname":"","dfullname":"","areafullname":""},"orders":null,"filter":null,"first":0,"count":30,"isFirst":false}'
+    data1 = '{"pagerId":"$2$saleStatSource","queryParams":{"startDate":"2024-06-01","endDate":"2024-07-01","ptypecategoryid":"","ptypeid":"0001000009","btypeid":"0000100051","dealbtypeid":"","etypeid":"","ktypeid":"0000200007","dtypeid":"","billType":"11","billTypeName":"销售出库单","explain":"","comment":"","chkDiscountQuery":"0","chkPe":0,"chkDx":"0","chkPf":"0","pfullname":"九号车-现用","bfullname":"九号-经销商","kfullname":"九号整车总仓","atypeid":"","etypeid1":"","ptypeproperty":"0","flag":"0","bTypeLx":null,"sfullname":"默认分支机构","stypeid":"00001","inputType":"B","parid":"0000100051","chkXs":"0","chkPt":"0","chkRed":0,"delView":0,"isshowservice":false,"intPageNo":"1","intPageSize":9999,"chvOperatorID":"000010000700012","chrFlag":"1","unitconvert":3},"orders":null,"filter":null,"first":0,"count":9999,"isFirst":false}'
     data1 = json.loads(data1)
-    data1['queryParams']['startdate'] = startdate
-    data1['queryParams']['enddate'] = enddate
+    data1['queryParams']['startDate'] = startdate
+    data1['queryParams']['endDate'] = enddate
     r = session.post(carpaHost + url1, json=data1).json()
     # print(r)
     return rows2dict(r['itemList']['fields'], r['itemList']['rows'])
@@ -150,8 +149,8 @@ def get_one_customer_summary(session, startdate, enddate, parid):
     data1 = '{"pagerId":"$2$saleStatDetailSource","queryParams":{"startDate":"2024-04-01","endDate":"2024-06-30","ptypecategoryid":"","ptypeid":"","btypeid":"","dealbtypeid":"","etypeid":"","ktypeid":"0000200007","dtypeid":"","billType":"11","billTypeName":"销售出库单","explain":"","comment":"","chkDiscountQuery":"0","chkPe":0,"chkDx":"0","chkPf":"0","pfullname":"","kfullname":"九号整车总仓","atypeid":"","etypeid1":"","ptypeproperty":0,"flag":"0","bTypeLx":null,"sfullname":"默认分支机构","stypeid":"00001","inputType":"B","parid":"000010005100009","chkXs":"0","chkPt":"0","chkRed":0,"delView":0,"isshowservice":false,"intPageNo":"1","intPageSize":50,"chvOperatorID":"000010000700012","chrFlag":"2","unitconvert":3,"startdate":"2024-04-01","enddate":"2024-06-30","nbillType":"11,45,305,141,160,215","sortfield":"","checkCode":"","checkName":"","priceMode":"0","brandtypeid":"","PageNo":1,"IsShowAll":false,"IsShowReconciliation":true},"orders":null,"filter":null,"first":0,"count":9999,"isFirst":true}'
     url1 = '/jxcTOP/Carpa.Web/Carpa.Web.Script.DataService.ajax/GetPagerDataEx '
     data1 = json.loads(data1)
-    data1['queryParams']['startdate'] = startdate
-    data1['queryParams']['enddate'] = enddate
+    data1['queryParams']['startDate'] = startdate
+    data1['queryParams']['endDate'] = enddate
     data1['queryParams']['parid'] = parid
     r = session.post(carpaHost + url1, json=data1)
     r = re.sub(r'new Date\(\d+\)', dashrepl, r.text)
@@ -183,15 +182,16 @@ if __name__ == '__main__':
     startdate = '2024-06-01'
     enddate = '2024-07-01'
     # r = get_all_ddc_detail(s, startdate, enddate)
-    r = get_ddc_summary(s,startdate,enddate)
-    get_ddc_summary_df = pd.DataFrame(r)
-    get_ddc_summary_df.sort_values(ascending=False, inplace=True, by='sum_qty')
-    ddc_summary_df_top3 = get_ddc_summary_df.head(3)
-    top3_list = []
-    for index, row in ddc_summary_df_top3[:3].iterrows():
-        typeid = row["typeid"]
-        top3_list.append(get_one_ddc_detail(s,startdate,enddate,typeid))
-    print('top3_list',top3_list)
+    # r = get_ddc_summary(s,startdate,enddate)
+    # get_ddc_summary_df = pd.DataFrame(r)
+    # get_ddc_summary_df.sort_values(ascending=False, inplace=True, by='sum_qty')
+    # ddc_summary_df_top3 = get_ddc_summary_df[:3]
+    # top3_list = []
+    # for index, row in ddc_summary_df_top3[:3].iterrows():
+    #     typeid = row["typeid"]
+    #     top3_list.append(get_one_ddc_detail(s,startdate,enddate,typeid))
+    # print(top3_list[0])
+    # print('top3_list',top3_list)
     # r = get_day_report(s,startdate,enddate)
     # print(r)
     # df = pd.DataFrame(r)
@@ -200,7 +200,9 @@ if __name__ == '__main__':
     # df = pd.DataFrame(r)
     # df.to_excel(path+'all_ddc.xlsx')
     # print(r)
+    r = get_all_ddc_LineSource_detail(s,startdate,enddate)
     p = '000010005100038'
     # get_customer_summary(s,startdate,enddate)
     # r = get_customer_summary(s,startdate,enddate)
-    # print(r)
+    # r = get_one_customer_summary(s,startdate,enddate,'000010005100002')
+    print(r)
