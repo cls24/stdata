@@ -79,6 +79,8 @@ if st.button("查询"):
         typeid = row["typeid"]
         _ = pygw.getdata.get_one_ddc_detail(s,d1,d2,typeid)
         top3_list.append(pd.DataFrame(_))
+
+    # accountqty
     get_all_ddc_detail_df = pygw.getdata.get_all_ddc_detail(s, d1, d2)
     get_all_ddc_detail_df = pd.DataFrame(get_all_ddc_detail_df)
     hcol1, hcol2, hcol3, hcol4, hcol5 = st.columns(5)
@@ -193,53 +195,53 @@ if st.button("查询"):
     #             # color=alt.Color('fullname:N', title='')
     #         )
     #         st.altair_chart(genre_ddc_chart)
-# def load_df_customer(df_customer,y):
-#     df_customer.sort_values(ascending=False, inplace=True, by=y)
-#     df_customer.reset_index(drop=True, inplace=True)
-#     data = df_customer[y]
-#     p = data.cumsum() / data.sum()
-#     df_customer['p'] = p
-#     key = p[p > 0.8].index[0]
-#     key_num = data.index.tolist().index(key)
-#     # print('超过80%占比的节点值索引为：', key)
-#     # print('超过80%占比的节点值索引位置为：', key_num)
-#     key_product = data.loc[:key]
-#     return df_customer,'{:.2%}'.format(key/data.count())
-#
-# def make_customer_chart(df,y):
-#
-#     c_df = pd.DataFrame({'名称':_df['名称'],y:_df[y],'p':_df['p']})
-#     base = alt.Chart(c_df).encode(
-#         alt.X('名称',sort=None).title(None)
-#     )
-#     bar = base.mark_bar().encode(
-#         alt.Y(y,sort='ascending').title(y, titleColor='#57A44C'),
-#         alt.Y2('p'),
-#         color="名称:N"
-#     )
-#     line = base.mark_line(point=True,stroke='#5276A7', interpolate='monotone').encode(
-#         alt.Y('p').title('p', titleColor='#5276A7')
-#     )
-#     _c = alt.layer(bar, line).resolve_scale(
-#         y='independent'
-#     )
-#     return _c
-# with st.container(border=True):
-#     st.markdown("##### 经销商销量分析")
-#     genre = st.radio(
-#         "请选择要分析的数据",
-#         ["销售数量", "价税合计", "毛利"],
-#         # captions = ["销售数量", "价税合计", "毛利"],
-#         horizontal =True)
-#     # print(genre)
-#     if genre == "销售数量":
-#         k = '销售数量'
-#     elif genre == "价税合计":
-#         k = '价税合计'
-#     else:
-#         k = '毛利'
-#     df_customer = pd.read_excel('./data/customer_summary-2024_06.xls')
-#     _df,percent = load_df_customer(df_customer, k)
-#     st.markdown("###### 百分之:"+percent + "的客户的"+k +"占比超过：80%")
-#     customer_chart = make_customer_chart(_df,k)
-#     st.altair_chart(customer_chart)
+    def load_df_customer(df_customer,y):
+        df_customer.sort_values(ascending=False, inplace=True, by=y)
+        df_customer.reset_index(drop=True, inplace=True)
+        data = df_customer[y]
+        p = data.cumsum() / data.sum()
+        df_customer['p'] = p
+        key = p[p > 0.8].index[0]
+        key_num = data.index.tolist().index(key)
+        # print('超过80%占比的节点值索引为：', key)
+        # print('超过80%占比的节点值索引位置为：', key_num)
+        key_product = data.loc[:key]
+        return df_customer,'{:.2%}'.format(key/data.count())
+
+    res_customer = pygw.getdata.get_customer_summary(s,d1,d2)
+    customer_summary_df = pd.DataFrame(res_customer)
+    _df,percent = load_df_customer(customer_summary_df, 'sum_qty')
+
+    c_df = pd.DataFrame({'fullname':_df['fullname'],'sum_qty':_df['sum_qty'],'p':_df['p']})
+    base = alt.Chart(c_df).encode(
+        alt.X('fullname',sort=None).title('名称')
+    )
+    bar = base.mark_bar().encode(
+        alt.Y('sum_qty',sort='ascending').title('销量', titleColor='#57A44C'),
+        alt.Y2('p'),
+        color="fullname:N"
+    )
+    line = base.mark_line(point=True,stroke='#5276A7', interpolate='monotone').encode(
+        alt.Y('p').title('p', titleColor='#5276A7')
+    )
+    _c = alt.layer(bar, line).resolve_scale(
+        y='independent'
+    )
+    with st.container(border=True):
+        st.markdown("##### 经销商销量分析")
+        # genre = st.radio(
+        #     "请选择要分析的数据",
+        #     ["销售数量", "价税合计", "毛利"],
+        #     # captions = ["销售数量", "价税合计", "毛利"],
+        #     horizontal =True)
+        # # print(genre)
+        # if genre == "销售数量":
+        #     k = '销售数量'
+        # elif genre == "价税合计":
+        #     k = '价税合计'
+        # else:
+        #     k = '毛利'
+
+        st.markdown("###### 百分之:"+percent + "的客户产生的"+'销量' +"占比超过：80%")
+        # customer_chart = make_customer_chart(_df,k)
+        st.altair_chart(_c)
