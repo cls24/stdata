@@ -20,4 +20,4 @@ def get_before_date(d1):
     return time.strftime("%Y-%m-%d")
 
 if __name__ == '__main__':
-    print(get_before_date('2024-07-01'))
+    print(get_before_date('2024-07-011'))
